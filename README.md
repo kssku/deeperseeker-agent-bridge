@@ -16,12 +16,26 @@ dsh（及任何 OpenAI 兼容 agent harness）与
 | 问题 | 现象 | 规范化动作 |
 |---|---|---|
 | `strict` 字段上游不认 | 客户端带 `strict: true` → 400 | 剥除顶层 / `response_format.json_schema` / `tools[].function` 三处的 `strict` |
-| 孤儿 `tool_call` 毒化会话 | assistant 声明了 `tool_calls` 但结果消息缺失 → 后续请求持续异常 | 为每个孤儿补占位 `role:"tool"` 消息，配对完整 |
+| 孤儿 `tool_call` 毒化会话（= 工具结果被静默丢弃） | assistant 声明了 `tool_calls` 但结果消息缺失 → 后续请求持续异常 | 为每个孤儿补占位 `role:"tool"` 消息，**协议配对完整** |
+| ↳ 其中「真实工具结果丢失」 | 客户端侧就没把结果发出来，bridge 从未收到 | **不恢复、不造假**（补的是"失败占位"，让模型知道该次调用失败后继续）——这是唯一正确处理，非缺口 |
 | `reasoning_content` 丢失致 400 | 多轮会话中 assistant 消息缺 `reasoning_content`（客户端不存）→ 400 | 补空串占位（**不造假思维链**） |
 | 思维链跨模型不兼容 | 会话中途从 reasoner 切到非 reasoner 模型 → 400 | 非 reasoner 模型下整体移除 `reasoning_content` 键 |
 
 设计约束：**纯函数、无 IO、不修改入参（deepcopy 隔离）、幂等**。
 每个动作都记 warning 日志，便于线上回放定位。
+
+---
+
+## 状态声明（Status）
+
+**本中间件当前为「契约级完成」，非「链路级完成」。**
+
+- **契约级完成**：4 类请求侧问题的规范化逻辑已实现，输入输出形状经单元测试确认。
+- **链路级完成 = 未达成**：未经真实 DeepSeek 上游端到端验证，也未经真实 DSH
+  实际请求形态验证。见下方「已验证范围」与 `known_limitations.md` 的 LIM-3。
+
+> 换句话说：**"按契约修好了"不等于"真实链路上验证过"。** 接入真实上游前，
+> 请把本仓库视为"逻辑已就绪、链路未证实"的中间件。
 
 ---
 
