@@ -3,5 +3,11 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+*.egg-info/
+build/
+dist/
 *.log
 .env
+.env.*
+!.env.example
+!.env.*.example

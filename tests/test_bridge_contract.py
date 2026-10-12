@@ -15,11 +15,12 @@
 """
 import json
 import sys
+from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest  # noqa: F401  (声明测试依赖；手动 runner 不依赖它)
 
-sys.path.insert(0, "/root/GitHub/deeperseeker-agent-bridge")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import httpx
 from fastapi.testclient import TestClient

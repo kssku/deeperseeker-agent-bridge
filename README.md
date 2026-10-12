@@ -97,7 +97,7 @@ known_limitations.md   上游架构级限制 + #5 误报推理链
 
 - **本中间件**（请求侧适配）：`strict` / 孤儿 tool_call / `reasoning_content`
   / 跨模型思维链 —— 这些是"请求进来先洗一遍"，放中间件比塞进上游干净。
-- **上游 fork 内**（已在 `/root/GitHub/deeperseeker` 打过补丁）：
+- **上游 fork 内**（改动位于另一个仓库：deeperseeker 的上游 fork，不在本仓库内）：
   L1 rollover 阈值、L3 空响应自愈 —— 这些涉及上游会话生命周期，必须在内部修。
 
 两者**不重叠**：中间件管"进来的请求长什么样"，fork 管"会话怎么活"。
